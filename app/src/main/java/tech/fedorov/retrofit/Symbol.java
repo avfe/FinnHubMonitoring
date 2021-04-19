@@ -27,6 +27,27 @@ public class Symbol {
     @Expose
     public String type;
 
+    public Symbol(String description, String symbol) {
+        this.description = description;
+        this.symbol = symbol;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
     @Override
     public String toString() {
         return "Symbol{" +
