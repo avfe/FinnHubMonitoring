@@ -1,5 +1,4 @@
 package tech.fedorov.retrofit;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -46,6 +45,16 @@ public class Symbol {
 
     public void setSymbol(String symbol) {
         this.symbol = symbol;
+    }
+
+    public float price = -1f;
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
     }
 
     @Override

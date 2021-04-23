@@ -11,4 +11,9 @@ public interface FinnhubService {
     Call<List<Symbol>> listSymbols(
             @Query("token") String token,
             @Query("exchange") String exchange);
+
+    @GET("api/v1/quote")
+    Call<Price> getPrice(
+            @Query("symbol") String symbol,
+            @Query("token") String token);
 }

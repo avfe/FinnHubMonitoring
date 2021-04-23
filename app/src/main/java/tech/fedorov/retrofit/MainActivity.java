@@ -1,6 +1,5 @@
 package tech.fedorov.retrofit;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,18 +35,18 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<Symbol> symbols = new ArrayList<>();
 
-        // set up the RecyclerView
-        RecyclerView recyclerView = findViewById(R.id.SymbolsList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        SymbolsListAdapter adapter = new SymbolsListAdapter(this, symbols);
-        recyclerView.setAdapter(adapter);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://finnhub.io/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         FinnhubService service = retrofit.create(FinnhubService.class);
         Call<List<Symbol>> symbolsListCall = service.listSymbols(getString(R.string.FinnhubToken), "US");
-
+        // set up the RecyclerView
+        RecyclerView recyclerView = findViewById(R.id.SymbolsList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        SymbolsListAdapter adapter = new SymbolsListAdapter(this, symbols, service);
+        recyclerView.setAdapter(adapter);
         symbolsListCall.enqueue(new Callback<List<Symbol>>() {
             @Override
             public void onResponse(Call<List<Symbol>> call, Response<List<Symbol>> response) {
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 for (Symbol s: smbols) {
                     symbols.add(new Symbol(s.getDescription(), s.getSymbol()));
                 }
-                adapter.notifyDataSetChanged();
+                adapter.updateStocks(symbols);
             }
 
             @Override
