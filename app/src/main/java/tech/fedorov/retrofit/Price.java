@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Price {
-
+    // FinnHub returns just "brilliant" JSON
     @SerializedName("c")
     @Expose
     public Float c;
@@ -26,5 +26,25 @@ public class Price {
 
     public Float getCurrent() {
         return c;
+    }
+
+    public Float getHigher() {
+        return h;
+    }
+
+    public Float getLower() {
+        return l;
+    }
+
+    public Float getOpenOfDay() {
+        return o;
+    }
+
+    public Float getPreviousClose() {
+        return pc;
+    }
+
+    public Integer getT() {
+        return t;
     }
 }

@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,37 +34,52 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ArrayList<Symbol> symbols = new ArrayList<>();
+        // List symbols for RecyclerView
+        ArrayList<Symbol> symbolsList = new ArrayList<>();
 
-
-        Retrofit retrofit = new Retrofit.Builder()
+        // Create FinnHub listener
+        Retrofit finnhubListener = new Retrofit.Builder()
                 .baseUrl("https://finnhub.io/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        FinnhubService service = retrofit.create(FinnhubService.class);
+        // Create retrofit service
+        FinnhubService service = finnhubListener.create(FinnhubService.class);
+        // Create callback command
         Call<List<Symbol>> symbolsListCall = service.listSymbols(getString(R.string.FinnhubToken), "US");
+
         // set up the RecyclerView
         RecyclerView recyclerView = findViewById(R.id.SymbolsList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        SymbolsListAdapter adapter = new SymbolsListAdapter(this, symbols, service);
+        SymbolsListAdapter adapter = new SymbolsListAdapter(this, symbolsList, service);
         recyclerView.setAdapter(adapter);
+
+        // Request to get the list of symbols
         symbolsListCall.enqueue(new Callback<List<Symbol>>() {
             @Override
             public void onResponse(Call<List<Symbol>> call, Response<List<Symbol>> response) {
-                List<Symbol> smbols = response.body();
+                // Getting responded symbols
+                List<Symbol> responseSymbolsList = response.body();
 
-                for (Symbol s: smbols) {
-                    symbols.add(new Symbol(s.getDescription(), s.getSymbol()));
+                // Adding responded symbols to RecyclerView symbols list
+                for (Symbol s: responseSymbolsList) {
+                    symbolsList.add(new Symbol(s.getDescription(), s.getSymbol()));
                 }
-                adapter.updateStocks(symbols);
+
+                // Update adapter's information
+                adapter.updateStocks(symbolsList);
             }
 
             @Override
             public void onFailure(Call<List<Symbol>> call, Throwable t) {
-                //tv.setText(t.getLocalizedMessage());
+                Log.d("SymbolsListCallDebug", t.getLocalizedMessage());
             }
         });
     }
+
+    /*
+        The following methods are needed to save symbolsList to a file in a private memory section.
+        It will be implemented in the future.
+    */
 
     private boolean findInArray(String str, String[] strs) {
         for (int i = 0; i < strs.length; i++) {
@@ -109,20 +125,23 @@ public class MainActivity extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
         ObjectInputStream objis = null;
         try {
             objis = new ObjectInputStream(flis);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Object keyPair = null;
+
+        Object object = null;
         try {
-            keyPair = objis.readObject();
+            object = objis.readObject();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return keyPair;
+
+        return object;
     }
 }

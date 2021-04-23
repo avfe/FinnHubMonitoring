@@ -16,7 +16,7 @@ import retrofit2.Response;
 
 public class SymbolsListAdapter extends RecyclerView.Adapter<SymbolsListAdapter.ViewHolder>{
 
-    private ArrayList<Symbol> mData;
+    private ArrayList<Symbol> symbolsList;
 
     private LayoutInflater mInflater;
 
@@ -25,7 +25,7 @@ public class SymbolsListAdapter extends RecyclerView.Adapter<SymbolsListAdapter.
     // data is passed into the constructor
     SymbolsListAdapter(Context context, ArrayList<Symbol> data, FinnhubService service) {
         this.mInflater = LayoutInflater.from(context);
-        this.mData = data;
+        this.symbolsList = data;
         this.service = service;
     }
 
@@ -39,21 +39,25 @@ public class SymbolsListAdapter extends RecyclerView.Adapter<SymbolsListAdapter.
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Symbol sumbol = mData.get(position);
-        String smb = sumbol.getSymbol();
-        String dcrp = sumbol.getDescription();
-        holder.symbol.setText(smb);
-        holder.description.setText(dcrp);
+        Symbol currentSymbol = symbolsList.get(position);
+        String currentSymbolTicket = currentSymbol.getSymbol();
+        String currentSymbolDescription = currentSymbol.getDescription();
+        holder.symbol.setText(currentSymbolTicket);
+        holder.description.setText(currentSymbolDescription);
 
-        if (mData.get(position).price < 0) {
+        if (symbolsList.get(position).price < 0) {
+            // Display query
             holder.price.setText("...");
-            Call<Price> priceCall = service.getPrice(sumbol.getSymbol(),"c1gdjqn48v6p69n8t8og");
+            // Create callback command to get price of symbol
+            Call<Price> priceCall = service.getPrice(currentSymbol.getSymbol(),"c1gdjqn48v6p69n8t8og");
+            // Request to get price of symbol
             priceCall.enqueue(new Callback<Price>() {
                 @Override
                 public void onResponse(Call<Price> call, Response<Price> response) {
+                    // Getting a price
                     Price price =  response.body();
                     if (price != null) {
-                        mData.get(position).setPrice(price.getCurrent());
+                        symbolsList.get(position).setPrice(price.getCurrent());
                         holder.price.setText(String.valueOf(price.getCurrent()));
                     } else {
                         Log.d("Price", "NullPrice");
@@ -71,15 +75,15 @@ public class SymbolsListAdapter extends RecyclerView.Adapter<SymbolsListAdapter.
         }
     }
 
-    public void updateStocks(ArrayList<Symbol> mData) {
-        this.mData = mData;
+    public void updateStocks(ArrayList<Symbol> symbolsList) {
+        this.symbolsList = symbolsList;
         notifyDataSetChanged();
     }
 
     // total number of rows
     @Override
     public int getItemCount() {
-        return mData.size();
+        return symbolsList.size();
     }
 
     // stores and recycles views as they are scrolled off screen
